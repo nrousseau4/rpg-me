@@ -1,17 +1,9 @@
-/**
- * Copyright 2024 nrousseau4
- * @license Apache-2.0, see LICENSE for full text.
- */
 import { LitElement, html, css } from "lit";
 import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
 import { I18NMixin } from "@haxtheweb/i18n-manager/lib/I18NMixin.js";
+import { WiredCheckbox } from 'wired-elements/lib/wired-checkbox.js';
 
-/**
- * `rpg-me`
- * 
- * @demo index.html
- * @element rpg-me
- */
+
 export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
   static get tag() {
@@ -20,30 +12,43 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
   constructor() {
     super();
-    this.title = "";
-    this.t = this.t || {};
-    this.t = {
-      ...this.t,
-      title: "Title",
-    };
-    this.registerLocalization({
-      context: this,
-      localesPath:
-        new URL("./locales/rpg-me.ar.json", import.meta.url).href +
-        "/../",
-      locales: ["ar", "es", "hi", "zh"],
-    });
+    this.accessories = 0;
+    this.base = 1;
+    this.face = 0;
+    this.faceitem = 0;
+    this.hair = 0;
+    this.pants = 0;
+    this.shirt = 0;
+    this.skin = 0;
+    this.hatcolor = 0;
+    this.hat = 'none';
+    this.fire = false;
+    this.walking = false;
+    this.circle = false;
+    this.loadFromUrl();
   }
 
-  // Lit reactive properties
   static get properties() {
     return {
       ...super.properties,
       title: { type: String },
+      accessories: { type: Number },
+      base: { type: Number },
+      face: { type: Number },
+      faceitem: { type: Number },
+      hair: { type: Number },
+      pants: { type: Number },
+      shirt: { type: Number },
+      skin: { type: Number },
+      hatcolor: { type: Number },
+      hat: { type: String },
+      fire: { type: Boolean },
+      walking: { type: Boolean },
+      circle: { type: Boolean },
+      seed: { type: String }
     };
   }
 
-  // Lit scoped styles
   static get styles() {
     return [super.styles,
     css`
@@ -56,20 +61,31 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
       .wrapper {
         margin: var(--ddd-spacing-2);
         padding: var(--ddd-spacing-4);
+        display: grid;
       }
-      h3 span {
-        font-size: var(--rpg-me-label-font-size, var(--ddd-font-size-s));
+
+      .input-group {
+        margin-bottom: var(--ddd-spacing-2);
       }
+
     `];
   }
 
   // Lit render the HTML
   render() {
     return html`
-<div class="wrapper">
-  <h3><span>${this.t.title}:</span> ${this.title}</h3>
-  <slot></slot>
-</div>`;
+      <div class="wrapper">
+          <div class="input-group">
+            <wired-checkbox
+            >Walking Animation</wired-checkbox>
+          </div>
+
+          <div class="input-group">
+            <wired-checkbox
+            >Circle Background</wired-checkbox>
+        </div>
+      </div>
+    `;
   }
 
   /**
