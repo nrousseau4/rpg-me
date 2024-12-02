@@ -76,13 +76,11 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     return html`
       <div class="wrapper">
           <div class="input-group">
-            <wired-checkbox
-            >Walking Animation</wired-checkbox>
+            <wired-checkbox>Walking Animation</wired-checkbox>
           </div>
 
           <div class="input-group">
-            <wired-checkbox
-            >Circle Background</wired-checkbox>
+            <wired-checkbox>Circle Background</wired-checkbox>
         </div>
       </div>
     `;
