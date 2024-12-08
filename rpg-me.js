@@ -166,7 +166,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
-      alert('Share link copied to clipboard!');
+      alert('Link copied to clipboard.');
     } catch (err) {
       alert('Share link: ' + url);
     }
