@@ -80,8 +80,8 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
         justify-content: center;
       }
 
-      wired-combo {
-        background-color: var(--ddd-theme-default-white);
+      wired-item {
+        opacity: 1;
       }
 
       .input-group {
