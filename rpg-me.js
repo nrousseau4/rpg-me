@@ -5,7 +5,6 @@ import "@haxtheweb/rpg-character/rpg-character.js";
 import "wired-elements";
 
 export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
-
   static get tag() {
     return "rpg-me";
   }
@@ -25,6 +24,8 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     this.fire = false;
     this.walking = false;
     this.circle = false;
+    this.seed = '';
+    this.loadFromUrl();
     this.updateSeed();
   }
 
@@ -41,67 +42,120 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
       skin: { type: Number },
       hatColor: { type: Number },
       hat: { type: String },
-      fire: { type: Boolean },
-      walking: { type: Boolean },
-      circle: { type: Boolean },
+      fire: { type: Boolean, reflect: true },
+      walking: { type: Boolean, reflect: true },
+      circle: { type: Boolean, reflect: true },
       seed: { type: String },
     };
   }
 
   static get styles() {
-    return [super.styles,
-    css`
-      :host {
-        display: block;
-        font-family: var(--ddd-font-primary);
-      }
+    return [
+      super.styles,
+      css`
+        :host {
+          display: block;
+          font-family: var(--ddd-font-primary);
+        }
 
-      .wrapper {
-        display: inline-flex;
-      }
+        .wrapper {
+          display: inline-flex;
+        }
 
-      .character-panel {
-        background: var(--ddd-theme-default-slateMaxLight);
-        padding: var(--ddd-spacing-4);
-        width: 600px;
-        
-      }
+        .character-panel {
+          background: var(--ddd-theme-default-slateMaxLight);
+          padding: var(--ddd-spacing-4);
+          width: 600px;
+        }
 
-      .controls-panel-1 {
-        background: var(--ddd-theme-default-navy40);
-        padding: var(--ddd-spacing-4);
-        width: 400px;
-      }
+        .controls-panel-1 {
+          background: var(--ddd-theme-default-navy40);
+          padding: var(--ddd-spacing-4);
+          width: 400px;
+        }
 
-      .controls-panel-2 {
-        background: var(--ddd-theme-default-navy40);
-        padding: var(--ddd-spacing-4);
-        width: 400px;
-        justify-content: center;
-      }
+        .controls-panel-2 {
+          background: var(--ddd-theme-default-navy40);
+          padding: var(--ddd-spacing-4);
+          width: 400px;
+          justify-content: center;
+        }
 
-      wired-item {
-        opacity: 1;
-      }
+        wired-item {
+          opacity: 1;
+        }
 
-      .input-group {
-        margin-bottom: var(--ddd-spacing-4);
-      }
+        .input-group {
+          margin-bottom: var(--ddd-spacing-4);
+        }
 
-      .input-group label {
-        display: block;
-        margin-bottom: var(--ddd-spacing-2);
-      }
+        .input-group label {
+          display: block;
+          margin-bottom: var(--ddd-spacing-2);
+        }
 
-      .seed-display {
-        margin-top: var(--ddd-spacing-4);
-        margin-right: var(--ddd-spacing-4);
-      }
+        .seed-display {
+          margin-top: var(--ddd-spacing-4);
+          margin-right: var(--ddd-spacing-4);
+        }
 
-      .share-button {
-        margin-top: var(--ddd-spacing-4);
-      }
-    `];
+        .share-button {
+          margin-top: var(--ddd-spacing-4);
+        }
+
+        wired-checkbox {
+          margin: var(--ddd-spacing-2) 0;
+        }
+
+        @media (max-width: 768px) {
+          .wrapper {
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .character-panel {
+            max-width: 100%;
+            padding: var(--ddd-spacing-2);
+          }
+
+          .controls-panel {
+            width: 100%;
+            padding: var(--ddd-spacing-2);
+          }
+
+          wired-slider {
+            width: 100%;
+          }
+
+          wired-radio {
+            display: block;
+            margin-bottom: var(--ddd-spacing-2);
+          }
+
+          .input-group {
+            width: 100%;
+          }
+
+          .share-button {
+            width: 100%;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .wrapper {
+            flex-direction: row;
+          }
+
+          .character-panel {
+            width: 600px;
+          }
+
+          .controls-panel {
+            width: 400px;
+          }
+        }
+      `
+    ];
   }
 
   loadFromUrl() {
@@ -122,13 +176,15 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     this.fire = params.get('fire') === 'true';
     this.walking = params.get('walking') === 'true';
     this.circle = params.get('circle') === 'true';
-    if (params.get('hat')) {
-      this.hat = params.get('hat');
+    
+    const hat = params.get('hat');
+    if (hat) {
+      this.hat = hat;
     }
   }
 
   updateSeed() {
-    this.seed = `${this.accessories}${this.base}${this.face}${this.faceItem}${this.hair}${this.pants}${this.shirt}${this.skin}${this.hatColor}`;
+    this.seed = `${this.accessories}${this.base}${this.face}${this.faceItem}${this.hair}${this.pants}${this.shirt}${this.skin}${this.hatColor}0`;
     this.updateUrl();
   }
 
@@ -139,26 +195,30 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     if (this.fire) params.set('fire', 'true');
     if (this.walking) params.set('walking', 'true');
     if (this.circle) params.set('circle', 'true');
-    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+    
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, '', newUrl);
   }
 
   handleInputChange(property, event) {
-    let value;
-    if (event.target.type === 'checkbox') {
-      value = event.target.checked;
+    if (event.target.tagName.toLowerCase() === 'wired-checkbox') {
+      this[property] = event.target.checked;
+    } else if (property === 'base') {
+      const value = parseInt(event.detail.selected);
+      this[property] = value === 5 ? 5 : 1;
+      this.requestUpdate();
     } else if (event.detail?.selected !== undefined) {
-      value = event.detail.selected;
+      this[property] = event.detail.selected;
     } else {
-      value = parseInt(event.target.value);
+      this[property] = parseInt(event.target.value);
     }
-    
-    this[property] = value;
     
     if (property !== 'hat' && property !== 'fire' && property !== 'walking' && property !== 'circle') {
       this.updateSeed();
     } else {
       this.updateUrl();
     }
+    
     this.requestUpdate();
   }
 
@@ -166,7 +226,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard.');
+      alert('Link copied to clipboard!');
     } catch (err) {
       alert('Share link: ' + url);
     }
@@ -174,10 +234,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
   firstUpdated() {
     super.firstUpdated();
-    const baseCombo = this.shadowRoot.querySelector('#base');
-    const hatCombo = this.shadowRoot.querySelector('#hat');
-    if (baseCombo) baseCombo.value = this.base.toString();
-    if (hatCombo) hatCombo.value = this.hat;
+    this.loadFromUrl();
   }
 
   render() {
@@ -212,49 +269,50 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
             <wired-combo id="base" .value="${this.base}" @selected="${(e) => this.handleInputChange('base', e)}">
               <wired-item value="1">Male</wired-item>
               <wired-item value="5">Female</wired-item>
-            </wired-combo>
+            </wired-combo>    
           </div>
 
           <div class="input-group">
             <label for="accessories">Accessories (0-9)</label>
-            <wired-slider id="accessories" min="0" max="9" .value="${this.accessories}" @change="${(e) => this.handleInputChange('accessories', { target: { value: parseInt(e.target.value) } })}"></wired-slider>
+            <wired-slider id="accessories" min="0" max="9" .value="${this.accessories}" @change="${(e) => this.handleInputChange('accessories', e)}"></wired-slider>
           </div>
 
           <div class="input-group">
             <label for="face">Face (0-5)</label>
-            <wired-slider id="face" min="0" max="5" .value="${this.face}" @change="${(e) => this.handleInputChange('face', { target: { value: parseInt(e.target.value) } })}"></wired-slider>
+            <wired-slider id="face" min="0" max="5" .value="${this.face}" @change="${(e) => this.handleInputChange('face', e)}"></wired-slider>
           </div>
 
           <div class="input-group">
             <label for="faceItem">Face Item (0-9)</label>
-            <wired-slider id="faceItem" min="0" max="9" .value="${this.faceitem}" @change="${(e) => this.handleInputChange('faceItem', { target: { value: parseInt(e.target.value) } })}"></wired-slider>
+            <wired-slider id="faceItem" min="0" max="9" .value="${this.faceItem}" @change="${(e) => this.handleInputChange('faceItem', e)}"></wired-slider>
           </div>
 
           <div class="input-group">
             <label for="hair">Hair Style (0-9)</label>
-            <wired-slider id="hair" min="0" max="9" .value="${this.hair}" @change="${(e) => this.handleInputChange('hair', { target: { value: parseInt(e.target.value) } })}"></wired-slider>
+            <wired-slider id="hair" min="0" max="9" .value="${this.hair}" @change="${(e) => this.handleInputChange('hair', e)}"></wired-slider>
           </div>
 
           <div class="input-group">
             <label for="pants">Pants (0-9)</label>
-            <wired-slider id="pants" min="0" max="9" .value="${this.pants}" @change="${(e) => this.handleInputChange('pants', { target: { value: parseInt(e.target.value) } })}"></wired-slider>
+            <wired-slider id="pants" min="0" max="9" .value="${this.pants}" @change="${(e) => this.handleInputChange('pants', e)}"></wired-slider>
           </div>
 
           <div class="input-group">
             <label for="shirt">Shirt (0-9)</label>
-            <wired-slider id="shirt" min="0" max="9" .value="${this.shirt}" @change="${(e) => this.handleInputChange('shirt', { target: { value: parseInt(e.target.value) } })}"></wired-slider>
+            <wired-slider id="shirt" min="0" max="9" .value="${this.shirt}" @change="${(e) => this.handleInputChange('shirt', e)}"></wired-slider>
           </div>
 
           <div class="input-group">
             <label for="skin">Skin Tone (0-9)</label>
-            <wired-slider id="skin" min="0" max="9" .value="${this.skin}" @change="${(e) => this.handleInputChange('skin', { target: { value: parseInt(e.target.value) } })}"></wired-slider>
+            <wired-slider id="skin" min="0" max="9" .value="${this.skin}" @change="${(e) => this.handleInputChange('skin', e)}"></wired-slider>
           </div>
 
           <div class="input-group">
             <label for="hatColor">Hat Color (0-9)</label>
-            <wired-slider id="hatColor" min="0" max="9" .value="${this.hatColor}" @change="${(e) => this.handleInputChange('hatColor', { target: { value: parseInt(e.target.value) } })}"></wired-slider>
+            <wired-slider id="hatColor" min="0" max="9" .value="${this.hatColor}" @change="${(e) => this.handleInputChange('hatColor', e)}"></wired-slider>
           </div>
         </div>
+
         <div class="controls-panel-2">
           <div class="input-group">
             <label for="hat">Hat Style</label>
@@ -292,8 +350,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   }
 
   static get haxProperties() {
-    return new URL(`./lib/${this.tag}.haxProperties.json`, import.meta.url)
-      .href;
+    return new URL(`./lib/${this.tag}.haxProperties.json`, import.meta.url).href;
   }
 }
 
